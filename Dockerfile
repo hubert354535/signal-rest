@@ -190,7 +190,21 @@ EXPOSE ${PORT}
 ENV SIGNAL_CLI_CONFIG_DIR=/home/.local/share/signal-cli
 ENV SIGNAL_CLI_UID=1000
 ENV SIGNAL_CLI_GID=1000
+# (Keep all existing instructions up to the RUN groupadd and useradd)
 
+# Copy the sync_jobs.sh script into the container
+COPY sync_jobs.sh /usr/local/bin/sync_jobs.sh
+
+# Make the script executable
+RUN chmod +x /usr/local/bin/sync_jobs.sh
+
+# Add the sync_jobs.sh script to the entrypoint script to run in the background
+RUN echo -e "\n/usr/local/bin/sync_jobs.sh &" >> /entrypoint.sh
+
+# Ensure the entrypoint script remains executable
+RUN chmod +x /entrypoint.sh
+
+# (Keep all remaining instructions as they are)
 ENTRYPOINT ["/entrypoint.sh"]
 
 HEALTHCHECK --interval=20s --timeout=10s --retries=3 \

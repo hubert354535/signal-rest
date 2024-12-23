@@ -33,26 +33,6 @@ supervisorctl start all
 fi
 
 export HOST_IP=$(hostname -I | awk '{print $1}')
-# Folders
-AVATARS_DIR="./home/.local/share/signal-cli/avatars"
-ATTACHMENTS_DIR="/home/.local/share/signal-cli/attachments"
 
-# Function to process files
-sync_files() {
-  for file in "$AVATARS_DIR"/*; do
-    if [ -f "$file" ]; then
-      filename=$(basename "$file")
-      if [ ! -f "$ATTACHMENTS_DIR/$filename.jpg" ]; then
-        cp "$file" "$ATTACHMENTS_DIR/$filename.jpg"
-        echo "Copied $filename to $ATTACHMENTS_DIR/$filename.jpg"
-      fi
-    fi
-  done
-}
-
-# Run the script in the background
-while true; do
-  sync_files
-  sleep 10
-done & exec setpriv --reuid=${SIGNAL_CLI_UID} --regid=${SIGNAL_CLI_GID} --init-groups --inh-caps=$caps signal-cli-rest-api -signal-cli-config=${SIGNAL_CLI_CONFIG_DIR}
 # Start API as signal-api user
+exec setpriv --reuid=${SIGNAL_CLI_UID} --regid=${SIGNAL_CLI_GID} --init-groups --inh-caps=$caps signal-cli-rest-api -signal-cli-config=${SIGNAL_CLI_CONFIG_DIR}
